@@ -1,0 +1,42 @@
+---
+title: "Springboard Capstone Project Proposal"
+author: "Darin Cavallero"
+date: "7/3/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Foundations of Data Science Capstone Project Proposal
+
+For my Springboard Foundations of Data Science course Capstone Project, I will compare the sales of video games with their Metacritic weighted average review score. 
+
+Per the Project Proposal assignment outline, I have answered the following questions (in italics) regarding this project:
+---
+*What is the problem you want to solve?*
+
+This comparison will solve the problem of whether game reviews are related or possibly largely related to video game sales; that is, do positive game reviews necessarily correlate with high sales of that game? From this data, we can possibly theorize as to why or why not our results have come out the way the have.
+  
+*Who is your client and why do they care about this problem? In other words, what will your client DO or DECIDE based on your analysis that they wouldn’t have otherwise?*
+
+Possible clients could include video game publishers, developers, editorial, or journalistic publications or outlets. A publisher or developer might decide to include attributes to a game that are generally reviewed positively or to make artistic or game design choices based on how the type of game(s) they want to make relates to probable critical consideration. In a more complicated relationship, a game review outlet might choose whether or not to provide a review score with their review because their scores could positively or negatively influence the Metacritic scores which could, in turn, affect that games sales. Further, a site could choose not to review games at all if relating to game sales is something they'd rather not do.
+  
+*What data are you going to use for this? How will you acquire this data?*
+
+I will be using [this dataset](https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings) found on [Kaggle](https://www.kaggle.com/) composed of web-scrapes of two sites, [vgchartz.com](http://www.vgchartz.com) for game sales information, and [metacritic.com](http://www.metacritic.com) for weighted game review score averages.
+The dataset was acquired in December of 2016, but is very extensive and will be rather useful in deepening my understanding of data cleaning and working with semi-large datasets.
+  
+*In brief, outline your approach to solving this problem (knowing that this might change later).*
+
+My approach is simply to compare, likely in multiple graphical formats as well as in text, how 10,000+ different video games sales relate to their average review scores. While I predict that, to some extent, positive game reviews will show positive sales increases, there will definitely be outliers. From the data I have, I'll attempt to determine to what extent game reviews impact a game's sales, what the average review score is that lies "in the middle" (such that it does not impact a game's sales either up or down), and what standard deviations exist depending on the distributions of data.
+  
+*What are your deliverables? Typically, this would include code, along with a paper and/or a slide deck.*
+
+I will have the following deliverables upon completion of this capstone project:
+
+*Multiple R scripts that are used to analyze the dataset and provide graphical information to make that data understandable
+*An R Markdown output that provides code snippets with explanations as to how that code works in order to show my full understanding and to provide the reader with understanding as to why I've written the code I have and what benefit it offers to see the output of that code as it prints out.
+*If desired, a cleaned version of the Kaggle dataset I've used to provide my analysis
+
