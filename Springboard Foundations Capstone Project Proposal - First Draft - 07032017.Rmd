@@ -36,7 +36,7 @@ My approach is simply to compare, likely in multiple graphical formats as well a
 
 I will have the following deliverables upon completion of this capstone project:
 
-*Multiple R scripts that are used to analyze the dataset and provide graphical information to make that data understandable
-*An R Markdown output that provides code snippets with explanations as to how that code works in order to show my full understanding and to provide the reader with understanding as to why I've written the code I have and what benefit it offers to see the output of that code as it prints out.
-*If desired, a cleaned version of the Kaggle dataset I've used to provide my analysis
+* Multiple R scripts that are used to analyze the dataset and provide graphical information to make that data understandable
+* An R Markdown output that provides code snippets with explanations as to how that code works in order to show my full understanding and to provide the reader with understanding as to why I've written the code I have and what benefit it offers to see the output of that code as it prints out.
+* If desired, a cleaned version of the Kaggle dataset I've used to provide my analysis
 
