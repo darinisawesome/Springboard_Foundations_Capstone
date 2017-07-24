@@ -1,0 +1,62 @@
+---
+title: "Springboard Foundations Capstone Data Cleaning Explainer"
+author: "Darin Cavallero"
+date: "7/24/2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r libraries, message=FALSE, warning=TRUE, include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(tidyr)
+```
+
+First, I load in the dataset I acquired from [Kaggle] (https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings)
+```{r load, include=FALSE}
+vgdf <- read_csv("~/Github/Springboard_Foundations_Capstone/Video_Games_Sales_as_at_22_Dec_2016_original.csv")
+```
+
+Next, I check for any NA values. The code below creates a dataframe with columns titled the same as any column from my dataset and with one integer in that column for the amount of NA values, if any.
+
+```{r vgdf_NA_count, echo=TRUE, message=FALSE, warning=FALSE}
+vgdf %>% 
+  select_if(function(x) any(is.na(x))) %>% 
+  summarise_all(funs(sum(is.na(.)))) -> vgdf_NA_count
+```
+
+According to the vgdf_NA_count dataframe, there are two games with NA values for their titles.
+
+When these games are inspected with `r vgdf %>% filter(is.na(Name))`, 
+we can see that these games also have NA values for Critic_Score and Critic_Count.
+Because, even if these game titles could be identified, they wouldn't contribute to any information I'm going to attempt to ascertain by comparison from this dataset, I'll remove these rows from the clean version of the dataset:
+
+```{r remove rows, echo=TRUE, message=FALSE, warning=FALSE}
+vgdf <- vgdf %>%
+  filter(!is.na(Name))
+```
+
+When I run the vgdf_NA_count function again, I see that removing these two rows removed a few more NA values from the NA count dataframe. Good.  
+
+Next, I create a dataframe with only games that have NA values for Critic_Score
+
+```{r NA_Critic_Score_df, echo=TRUE, message=FALSE, warning=FALSE}
+NA_Critic_Score_df <- vgdf %>% 
+  filter(is.na(Critic_Score))
+```
+
+Reviewing this dataframe shows that these games have sales data (NA_Sales, EU_Sales), but no critic score (Critic_Score) data, which makes them somewhat useless for comparing review aggregates and sales, but some of these games have user scores (User_Score), so I'll remove rows without critic or user scores or counts:
+
+```{r remove, echo=TRUE, message=FALSE, warning=FALSE}
+vgdf <- vgdf %>% 
+  filter(!is.na(Critic_Score) & !is.na(User_Score) & !is.na(Critic_Count) & !is.na(User_Count))
+```
+
+This has removed nearly all the NA values!  
+  
+Running the NA count function again, we can see there are still 4 NAs under the "Developer" column and 70 NAs under the "Rating" column, but this dataset should be sufficient to analyze correlations between reviews and sales, so I'll output to a cleaned csv.
