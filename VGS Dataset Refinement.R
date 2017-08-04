@@ -21,7 +21,7 @@ vgdf %>%
 #That said, I'll remove these two rows from the dataset
 
 vgdf <- vgdf %>%
-  +   filter(!is.na(Name))
+  filter(!is.na(Name))
 
 #When I run the vgdf_NA_count function again, I see that 
 #removing these two rows removed a few more NA values from the NA count
