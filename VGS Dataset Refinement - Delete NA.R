@@ -44,7 +44,13 @@ vgdf <- vgdf %>%
 #Running the NA count function again, we can see there are still
 # 4 NAs under the "Developer" column and
 # 70 NAs under the "Rating" column.
-#This dataset should be sufficient to analyze correlations between reviews and sales.
+#I'll replace them just for totality's sake.
+
+vgdf <- vgdf %>%
+  mutate(Developer = replace(Developer, is.na(Developer), "Unknown")) %>%
+  mutate(Rating = replace(Rating, is.na(Rating), "Unrated"))
+
+#After all this, no NA values remain!
 
 #Output to clean csv file
-write_csv(vgdf, "Video_Games_Sales_as_at_22_Dec_2016_clean.csv")
+write_csv(vgdf, "Video_Games_Sales_as_at_22_Dec_2016_clean-delete.csv")
