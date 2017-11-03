@@ -75,13 +75,9 @@ ct.km <- table(wine$Type, fit.km$cluster)
 ct.km
 
 # Exercise 6:
-# * Visualize these clusters using  function clusplot() from the cluster library
-#### This wouldn't work properly for me
-# * Would you consider this a good clustering?
-#### I can't tell on my own. The library(flexclust) command doesn't work like in the example.
-
+# * Visualize these clusters using function clusplot() from the cluster library
 library(cluster)
-clusplot() #I'm not sure what to put in here. 
-# The documentation is confusing me. No data or values I have so far fit properly.
-# "Error in as.vector(clus) : argument "clus" is missing, with no default"
-# ???
+clusplot(wine, wine$Type, color = TRUE, shade = TRUE, plotchar = FALSE)
+
+# * Would you consider this a good clustering?
+#### Yes, it does. The plot shows the clustering well.
