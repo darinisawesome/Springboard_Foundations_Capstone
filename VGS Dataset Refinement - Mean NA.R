@@ -26,6 +26,12 @@ vgdf <- vgdf %>%
 #When I run the vgdf_NA_count function again, I see that 
 #removing these two rows removed a few more NA values from the NA count
 
+str(vgdf) 
+
+#User_Count and User_Score are chr, so I'll convert them to numeric 
+vgdf$User_Count<-as.numeric(as.character(vgdf$User_Count))
+vgdf$User_Score<-as.numeric(as.character(vgdf$User_Score))
+
 #Next, I create a dataframe with only games that have NA values for Critic_Score
 
 NA_Critic_Score_df <- vgdf %>% 

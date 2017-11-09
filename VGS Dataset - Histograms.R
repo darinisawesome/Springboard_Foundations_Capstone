@@ -33,7 +33,7 @@ ggplot(vgdf_del, aes(x = Critic_Score)) +
        scale_y_continuous(name = "Count")
 
 #histogram of User_Score  
-ggplot(vgdf, aes(x = as.numeric(User_Score)) ) +
+ggplot(vgdf_del, aes(x = as.numeric(User_Score)) ) +
        geom_histogram(
                       aes(y = ..count..), 
                       binwidth = 0.1
