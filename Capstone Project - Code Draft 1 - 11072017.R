@@ -223,3 +223,30 @@ summary(sales.mod4)
 
 anova(sales.mod, sales.mod2, sales.mod3, sales.mod4)
 # Models 3 and 4 seem like our best bets, but 3 is much simpler. Hm.
+
+########################
+### Model Evaluation ###
+########################
+
+library(mlbench)
+library(caret)
+library(boot)
+
+set.seed(7)
+
+attach(vgdf)
+
+MSE_LOOCV <- cv.glm(vgdf, sales.mod3)
+MSE_LOOCV
+# delta = NaN?
+# if this works later, make a for loop
+
+MSE_10_FOLD_CV = NULL
+
+for (i in 1:10){
+  model = glm(Global_Sales ~ poly(Critic_Score + User_Score + Critic_Count + User_Count, i), data = vgdf)
+  MSE_10_FOLD_CV[i] <- cv.glm(vgdf, model, K = 10)$delta[1]
+}
+MSE_10_FOLD_CV
+# the MSE are all pretty similar. The model isn't stellar, but maybe it's okay?
+
