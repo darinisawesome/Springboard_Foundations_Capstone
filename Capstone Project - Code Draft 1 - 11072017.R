@@ -85,16 +85,8 @@ write_csv(vgdf, "Video_Games_Sales_as_at_22_Dec_2016_clean-delete.csv")
 library(ggplot2)
 library(quantreg)
 
-# Below are loaded datasets cleaned in the same way as above except...
-# vgdf_mean, when possible, has the NA values replaced with a mean of all other values.
-# vgdf_mean is useful for machine learning algorithms, though it doesn't display...
-# as well when a histogram is made as can be seen in the visualizations below.
-
-vgdf_del <- read_csv("~/Github/Springboard_Foundations_Capstone/Video_Games_Sales_as_at_22_Dec_2016_clean-delete.csv")
-vgdf_mean <- read_csv("~/Github/Springboard_Foundations_Capstone/Video_Games_Sales_as_at_22_Dec_2016_clean-mean.csv")
-
 #histogram of Critic_Score
-ggplot(vgdf_del, aes(x = Critic_Score)) +
+ggplot(vgdf, aes(x = Critic_Score)) +
   geom_histogram(
     aes(y = ..count..), 
     binwidth = 1
@@ -103,22 +95,22 @@ ggplot(vgdf_del, aes(x = Critic_Score)) +
   scale_y_continuous(name = "Count")
 
 #histogram with normal curve and density gradient for Critic_Score
-nchg <- ggplot(vgdf_del, aes(x=Critic_Score))
+nchg <- ggplot(vgdf, aes(x=Critic_Score))
 nchg <- nchg + geom_histogram(binwidth=2, colour="black", 
                           aes(y=..density.., fill=..count..))
 nchg <- nchg + scale_fill_gradient("Count", low="#DCDCDC", high="#7C7C7C")
 nchg <- nchg + stat_function(fun=dnorm,
                          color="red",
-                         args=list(mean=mean(vgdf_del$Critic_Score), 
-                                   sd=sd(vgdf_del$Critic_Score)))
+                         args=list(mean=mean(vgdf$Critic_Score), 
+                                   sd=sd(vgdf$Critic_Score)))
 
 nchg
 
 #scaling of User_Score to match Critic_Score
-vgdf_del$User_Score_num = as.numeric(as.character(vgdf_del$User_Score)) *10
+vgdf$User_Score_num = as.numeric(as.character(vgdf$User_Score)) *10
 
 #histogram of User_Score_num (a scaled value for User_Score)
-ggplot(vgdf_del, aes(x = User_Score_num)) +
+ggplot(vgdf, aes(x = User_Score_num)) +
   geom_histogram(
     aes(y = ..count..), 
     binwidth = 1
@@ -127,38 +119,107 @@ ggplot(vgdf_del, aes(x = User_Score_num)) +
   scale_y_continuous(name = "Count")
 
 #Point + Smooth - This shows the correlation really well! There's not much!
-ggplot(vgdf_del, aes(Critic_Score, Global_Sales)) +
+ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
   geom_point() +
   geom_smooth(method = "lm")
 
 #Refined Jitter
-ggplot(vgdf_del, aes(Critic_Score, Global_Sales), 
+ggplot(vgdf, aes(Critic_Score, Global_Sales), 
        size=2, position = position_jitter(x = 2, y = 2)) +
   geom_jitter(colour = alpha("black", 0.15))
 
 #Point and density - The density contour doesn't help at all
-ggplot(vgdf_del, aes(Critic_Score, Global_Sales)) +
+ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
   geom_point(size=1) + geom_density2d()
 
 #Scatter Plot
-ggplot(vgdf_del, aes(Critic_Score, Global_Sales)) +
+ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
   geom_point()
 
 #Line
-ggplot(vgdf_del, aes(Critic_Score, Global_Sales)) +
+ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
   geom_line()
 
 #Box Plot - I need to zoom in or remove outliers
-ggplot(vgdf_del, aes(Year_of_Release, Critic_Score)) +
+ggplot(vgdf, aes(Year_of_Release, Critic_Score)) +
   geom_boxplot(aes(group = Year_of_Release))
 
 ###################
 ### Predictions ###
 ###################
 
-# I'll use vgdf_mean here in order to have more data for training my model
+vglm <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + User_Count, data = vgdf)
+# very poor coeffecients. I'm not sure what to do here.
 
-vglm <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + User_Count, data = vgdf_mean)
+vgpoly <- lm(Global_Sales ~ Critic_Score + I(Critic_Score^2) + I(Critic_Score^3), data = vgdf)
+# not familiar with this style (polynomial?) of prediction, but possibly better predictions?
 
-vgpoly <- lm(Global_Sales ~ Critic_Score + I(Critic_Score^2) + I(Critic_Score^3), data = vgdf_mean)
+### My testing below ###
 
+summary(vgdf)
+#doesn't work because of character strings
+
+# summary of Global_Sales and Critic_Score columns, all rows
+sales.critic <- subset(vgdf, select = c("Critic_Score", "Global_Sales"))
+summary(sales.critic)
+
+# correlation between Global_Sales and Critic_Score (0.2369535)
+cor(sales.critic)
+
+#plot the data
+plot(sales.critic)
+
+# Fit our regression model
+sales.mod <- lm(Global_Sales ~ Critic_Score, # regression formula
+              data=sales.critic) # data set
+
+# Summarize and print the results (high level of significance!)
+summary(sales.mod) # show regression coefficients table
+
+sales.mod2 <- lm(Global_Sales ~ Critic_Score + User_Score, data = vgdf)
+summary(sales.mod2)
+# Both are ***!
+
+confint(sales.mod)
+confint(sales.mod2)
+# Not sure what to make of these...
+# Maybe Critic_Score is a better predictor than User_Score?
+
+plot(sales.mod)
+# lots of info here...
+
+plot(sales.mod2)
+# same. Again, not sure what to make of this info.
+
+anova(sales.mod, sales.mod2)
+# Model with more data seems better here.
+
+sales.mod3 <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + User_Count, data = vgdf)
+summary(sales.mod3)
+# All data is useful, but User_Score is least useful
+
+anova(sales.mod, sales.mod2, sales.mod3)
+# Still, 2 and 3 are the best models
+
+# Now, let's add some categorical variables to the model
+
+str(vgdf)
+
+vgdf_mod <- vgdf
+
+vgdf_mod$Platform <- factor(vgdf$Platform)
+vgdf_mod$Year_of_Release <- factor(vgdf$Year_of_Release)
+vgdf_mod$Genre <- factor(vgdf$Genre)
+vgdf_mod$Publisher <- factor(vgdf$Publisher)
+
+str(vgdf_mod)
+# Now, I can use these factors for predictions!
+
+sales.mod4 <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + 
+                   User_Count + Platform + Year_of_Release + Genre + Publisher, 
+                 data = vgdf_mod)
+summary(sales.mod4)
+# Lots of data here. Some categories more important than others.
+
+anova(sales.mod, sales.mod2, sales.mod3, sales.mod4)
+# Models 3 and 4 seem like our best bets, but 3 is much simpler. Hm.
