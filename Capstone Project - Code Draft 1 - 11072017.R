@@ -144,6 +144,76 @@ ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
 ggplot(vgdf, aes(Year_of_Release, Critic_Score)) +
   geom_boxplot(aes(group = Year_of_Release))
 
+###############
+### P-tests ###
+###############
+
+xbar = mean(vgdf$Critic_Score) # mean metascore
+xbar
+mu0 = 70 # I estimate that the average review score is 70
+sigma = sd(vgdf$Critic_Score) # standard deviation of metascores
+n = 7017  # sample size 
+z <- (xbar - mu0)/(sigma/sqrt(n))
+z   # test statistic 
+
+alpha = .05 
+z.half.alpha = qnorm(1-alpha/2) 
+c(-z.half.alpha, z.half.alpha) 
+
+pval = 2 * pnorm(z)    # lower tail 
+pval                   # two−tailed p−value 
+
+# Value must be greater than 0.05
+# 1.507636 is between -1.959964 and 1.959964, so we accept the hypothesis!
+
+xbar = mean(vgdf$User_Score) # mean user score
+xbar
+mu0 = 7 # I estimate that the average review score is 7
+sigma = sd(vgdf$User_Score) # standard deviation of metascores
+n = 7017  # sample size 
+z <- (xbar - mu0)/(sigma/sqrt(n))
+z   # test statistic 
+
+alpha = .05 
+z.half.alpha = qnorm(1-alpha/2) 
+c(-z.half.alpha, z.half.alpha) 
+
+pval = 2 * pnorm(z)    # lower tail 
+pval                   # two−tailed p−value 
+
+# Value must be greater than 0.05
+# 10.60307 is not between -1.959964 and 1.959964, so we deny the hypothesis!
+
+xbar = mean(vgdf$User_Score) # mean user score
+xbar
+mu0 = 7.2 # I estimate that the average review score is 7.2
+sigma = sd(vgdf$User_Score) # standard deviation of metascores
+n = 7017  # sample size 
+z <- (xbar - mu0)/(sigma/sqrt(n))
+z   # test statistic 
+
+alpha = .05 
+z.half.alpha = qnorm(1-alpha/2) 
+c(-z.half.alpha, z.half.alpha) 
+
+pval = 2 * pnorm(z)    # lower tail 
+pval                   # two−tailed p−value 
+
+# Value must be greater than 0.05
+# -1.021294 is between -1.959964 and 1.959964, so we accept the hypothesis!
+
+#...possibly add more. These are waaaay basic tests.
+
+
+
+##################
+### Clustering ###
+##################
+
+
+
+
+
 ###################
 ### Predictions ###
 ###################
@@ -249,4 +319,13 @@ for (i in 1:10){
 }
 MSE_10_FOLD_CV
 # the MSE are all pretty similar. The model isn't stellar, but maybe it's okay?
+
+MSE_5_FOLD_CV = NULL
+
+for (i in 1:10){
+  model = glm(Global_Sales ~ poly(Critic_Score + User_Score + Critic_Count + User_Count, i), data = vgdf)
+  MSE_10_FOLD_CV[i] <- cv.glm(vgdf, model, K = 5)$delta[1]
+}
+MSE_5_FOLD_CV
+# If K = 5 or 10, the results are very close to each other. This is a good indication of a reliable model.
 
