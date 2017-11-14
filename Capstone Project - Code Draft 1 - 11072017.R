@@ -271,10 +271,36 @@ barplot(table(nc$Best.n[1,]),
         main="Number of Clusters Chosen by 26 Criteria")
 # Seems like 3 clusters would be best. :)
 
+# To simplify, let's cluster just the Critic_Score column.
+
+Critic_Score <- vgdf$Critic_Score
+CS <- scale(Critic_Score)
+wssplot(CS) #again, it looks like 3 clusters might be best.
+CS_clust <- NbClust(CS, min.nc=2, max.nc=15, method="kmeans")
+# This also took about 25 minutes. Still looks like 3 clusters is best.
+# Results are below.
+#
+# * Among all indices:                                                
+#* 1 proposed 2 as the best number of clusters 
+#* 2 proposed 3 as the best number of clusters 
+#* 1 proposed 7 as the best number of clusters 
+#* 1 proposed 11 as the best number of clusters 
+#* 1 proposed 15 as the best number of clusters 
+#***** Conclusion *****                            
+#* According to the majority rule, the best number of clusters is  3
+
+# Let's cluster!
+
 fit.km.vgdf <- kmeans(vgdf_nums, 3)
 
-# I'm not sure what to do next. The exercise dataset were already organize by type...
+cs.km <- table(vgdf$Critic_Score, fit.km.vgdf$cluster)
+cs.km
 
+library(cluster)
+clusplot(vgdf_nums, vgdf_nums$Critic_Score, color = TRUE, shade = TRUE, plotchar = FALSE)
+
+# The clustering here almost looks random. I'm not sure if this is helpful or not.
+# Maybe I messed something up.
 
 
 ###################
