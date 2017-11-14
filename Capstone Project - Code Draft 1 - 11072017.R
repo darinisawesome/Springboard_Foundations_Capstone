@@ -144,6 +144,7 @@ ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
 ggplot(vgdf, aes(Year_of_Release, Critic_Score)) +
   geom_boxplot(aes(group = Year_of_Release))
 
+
 ###############
 ### P-tests ###
 ###############
@@ -210,7 +211,69 @@ pval                   # two−tailed p−value
 ### Clustering ###
 ##################
 
+wssplot <- function(data, nc=15, seed=1234){
+  wss <- (nrow(data)-1)*sum(apply(data,2,var))
+  for (i in 2:nc){
+    set.seed(seed)
+    wss[i] <- sum(kmeans(data, centers=i)$withinss)}
+  
+  plot(1:nc, wss, type="b", xlab="Number of Clusters",
+       ylab="Within groups sum of squares")
+}
 
+#create dataset with only numbers
+vgdf_nums <- vgdf
+vgdf_nums$Name = NULL
+vgdf_nums$Platform = NULL
+vgdf_nums$Year_of_Release = NULL
+vgdf_nums$Genre = NULL
+vgdf_nums$Publisher = NULL
+vgdf_nums$Developer = NULL
+vgdf_nums$Rating = NULL
+
+vgdf_clust <- scale(vgdf_nums)
+wssplot(vgdf_clust)
+
+#3 clusters seem like the right choice here...
+
+library(NbClust)
+set.seed(1234)
+nc <- NbClust(vgdf_nums, min.nc=2, max.nc=15, method="kmeans")
+# This took about 15 minutes or so to process. To save time, it output as:
+#
+# [1] "Frey index : No clustering structure in this data set"
+#*** : The Hubert index is a graphical method of determining the number of clusters.
+#In the plot of Hubert index, we seek a significant knee that corresponds to a 
+#significant increase of the value of the measure i.e the significant peak in Hubert
+#index second differences plot. 
+#
+#*** : The D index is a graphical method of determining the number of clusters. 
+#In the plot of D index, we seek a significant knee (the significant peak in Dindex
+#second differences plot) that corresponds to a significant increase of the value of
+#the measure. 
+
+#******************************************************************* 
+#  * Among all indices:                                                
+#  * 5 proposed 2 as the best number of clusters 
+#* 8 proposed 3 as the best number of clusters 
+#* 2 proposed 4 as the best number of clusters 
+#* 2 proposed 8 as the best number of clusters 
+#* 1 proposed 9 as the best number of clusters 
+#* 1 proposed 10 as the best number of clusters 
+#* 1 proposed 14 as the best number of clusters 
+#* 3 proposed 15 as the best number of clusters 
+#
+#***** Conclusion *****                            
+#  
+#  * According to the majority rule, the best number of clusters is  3 
+barplot(table(nc$Best.n[1,]),
+        xlab="Numer of Clusters", ylab="Number of Criteria",
+        main="Number of Clusters Chosen by 26 Criteria")
+# Seems like 3 clusters would be best. :)
+
+fit.km.vgdf <- kmeans(vgdf_nums, 3)
+
+# I'm not sure what to do next. The exercise dataset were already organize by type...
 
 
 
