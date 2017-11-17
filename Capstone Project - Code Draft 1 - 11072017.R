@@ -123,25 +123,33 @@ ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
   geom_point() +
   geom_smooth(method = "lm")
 
+no_outlier <- vgdf %>%
+  filter(Name != "Wii Sports")
+
+#Point + Smooth again without Wii Sports (an obvious outlier)
+ggplot(no_outlier, aes(Critic_Score, Global_Sales)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
 #Refined Jitter
-ggplot(vgdf, aes(Critic_Score, Global_Sales), 
+ggplot(no_outlier, aes(Critic_Score, Global_Sales), 
        size=2, position = position_jitter(x = 2, y = 2)) +
   geom_jitter(colour = alpha("black", 0.15))
 
 #Point and density - The density contour doesn't help at all
-ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
+ggplot(no_outlier, aes(Critic_Score, Global_Sales)) +
   geom_point(size=1) + geom_density2d()
 
 #Scatter Plot
-ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
+ggplot(no_outlier, aes(Critic_Score, Global_Sales)) +
   geom_point()
 
 #Line
-ggplot(vgdf, aes(Critic_Score, Global_Sales)) +
+ggplot(no_outlier, aes(Critic_Score, Global_Sales)) +
   geom_line()
 
 #Box Plot - I need to zoom in or remove outliers
-ggplot(vgdf, aes(Year_of_Release, Critic_Score)) +
+ggplot(no_outlier, aes(Year_of_Release, Critic_Score)) +
   geom_boxplot(aes(group = Year_of_Release))
 
 
@@ -307,10 +315,10 @@ clusplot(vgdf_nums, vgdf_nums$Critic_Score, color = TRUE, shade = TRUE, plotchar
 ### Predictions ###
 ###################
 
-vglm <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + User_Count, data = vgdf)
-# very poor coeffecients. I'm not sure what to do here.
+vglm <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + User_Count, data = no_outlier)
+# Very low p-value, but I'm getting 2-3 * significance codes. Hm.
 
-vgpoly <- lm(Global_Sales ~ Critic_Score + I(Critic_Score^2) + I(Critic_Score^3), data = vgdf)
+vgpoly <- lm(Global_Sales ~ Critic_Score + I(Critic_Score^2) + I(Critic_Score^3), data = no_outlier)
 # not familiar with this style (polynomial?) of prediction, but possibly better predictions?
 
 ### My testing below ###
@@ -319,7 +327,7 @@ summary(vgdf)
 #doesn't work because of character strings
 
 # summary of Global_Sales and Critic_Score columns, all rows
-sales.critic <- subset(vgdf, select = c("Critic_Score", "Global_Sales"))
+sales.critic <- subset(no_outlier, select = c("Critic_Score", "Global_Sales"))
 summary(sales.critic)
 
 # correlation between Global_Sales and Critic_Score (0.2369535)
@@ -330,12 +338,12 @@ plot(sales.critic)
 
 # Fit our regression model
 sales.mod <- lm(Global_Sales ~ Critic_Score, # regression formula
-              data=sales.critic) # data set
+              data=no_outlier) # data set
 
 # Summarize and print the results (high level of significance!)
 summary(sales.mod) # show regression coefficients table
 
-sales.mod2 <- lm(Global_Sales ~ Critic_Score + User_Score, data = vgdf)
+sales.mod2 <- lm(Global_Sales ~ Critic_Score + User_Score, data = no_outlier)
 summary(sales.mod2)
 # Both are ***!
 
@@ -353,7 +361,7 @@ plot(sales.mod2)
 anova(sales.mod, sales.mod2)
 # Model with more data seems better here.
 
-sales.mod3 <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + User_Count, data = vgdf)
+sales.mod3 <- lm(Global_Sales ~ Critic_Score + User_Score + Critic_Count + User_Count, data = no_outlier)
 summary(sales.mod3)
 # All data is useful, but User_Score is least useful
 
@@ -364,7 +372,7 @@ anova(sales.mod, sales.mod2, sales.mod3)
 
 str(vgdf)
 
-vgdf_mod <- vgdf
+vgdf_mod <- no_outlier
 
 vgdf_mod$Platform <- factor(vgdf$Platform)
 vgdf_mod$Year_of_Release <- factor(vgdf$Year_of_Release)
@@ -393,9 +401,9 @@ library(boot)
 
 set.seed(7)
 
-attach(vgdf)
+attach(no_outlier)
 
-MSE_LOOCV <- cv.glm(vgdf, sales.mod3)
+MSE_LOOCV <- cv.glm(vgdf_nums, sales.mod2)
 MSE_LOOCV
 # delta = NaN?
 # if this works later, make a for loop
@@ -403,7 +411,7 @@ MSE_LOOCV
 MSE_10_FOLD_CV = NULL
 
 for (i in 1:10){
-  model = glm(Global_Sales ~ poly(Critic_Score + User_Score + Critic_Count + User_Count, i), data = vgdf)
+  model = glm(Global_Sales ~ poly(Critic_Score + User_Score, i), data = vgdf_nums)
   MSE_10_FOLD_CV[i] <- cv.glm(vgdf, model, K = 10)$delta[1]
 }
 MSE_10_FOLD_CV
@@ -412,8 +420,8 @@ MSE_10_FOLD_CV
 MSE_5_FOLD_CV = NULL
 
 for (i in 1:10){
-  model = glm(Global_Sales ~ poly(Critic_Score + User_Score + Critic_Count + User_Count, i), data = vgdf)
-  MSE_10_FOLD_CV[i] <- cv.glm(vgdf, model, K = 5)$delta[1]
+  model = glm(Global_Sales ~ poly(Critic_Score + User_Score, i), data = vgdf_nums)
+  MSE_5_FOLD_CV[i] <- cv.glm(vgdf, model, K = 5)$delta[1]
 }
 MSE_5_FOLD_CV
 # If K = 5 or 10, the results are very close to each other. This is a good indication of a reliable model.
