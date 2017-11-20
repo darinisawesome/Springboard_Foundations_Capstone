@@ -310,6 +310,11 @@ clusplot(vgdf_nums, vgdf_nums$Critic_Score, color = TRUE, shade = TRUE, plotchar
 # The clustering here almost looks random. I'm not sure if this is helpful or not.
 # Maybe I messed something up.
 
+# Clustering hypothesis testing
+
+cluster1 <- fit.km.vgdf$cluster
+
+t.test(cluster1-3,alternative="two.sided",conf.level=0.95)
 
 ###################
 ### Predictions ###
